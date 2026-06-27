@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root {
+  --sidebar-width: 220px;
+}
+
+body {
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #f4f6f9;
+  color: #1c1c1e;
+}
+
+* { box-sizing: border-box; }
