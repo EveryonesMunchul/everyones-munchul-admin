@@ -10,6 +10,7 @@ import NoticesPage from '@/pages/NoticesPage';
 import FaqPage from '@/pages/FaqPage';
 import AdsPage from '@/pages/AdsPage';
 import MaintenancePage from '@/pages/MaintenancePage';
+import HomeSettingPage from '@/pages/HomeSettingPage';
 
 export default function App() {
   return (
@@ -26,7 +27,8 @@ export default function App() {
             <Route path="/notices"   element={<NoticesPage />} />
             <Route path="/faq"       element={<FaqPage />} />
             <Route path="/ads"         element={<AdsPage />} />
-            <Route path="/maintenance" element={<MaintenancePage />} />
+            <Route path="/maintenance"  element={<MaintenancePage />} />
+            <Route path="/home-setting" element={<HomeSettingPage />} />
           </Route>
         </Route>
 

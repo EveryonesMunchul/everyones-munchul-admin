@@ -75,6 +75,32 @@ export const adminReportApi = {
     api.delete(`/api/admin/reports/posts/${id}`),
 };
 
+export interface AdminPostSummary {
+  id: number;
+  title: string;
+  category: string;
+  isAnonymous: boolean;
+  authorNickname: string;
+  totalVoteCount: number;
+  voteOptionCount: number;
+  isResultHidden: boolean;
+  voteExpiresAt: string | null;
+  createdAt: string;
+}
+
+export const featuredPostApi = {
+  get: () => api.get<AdminPostSummary>('/api/admin/featured-post'),
+  set: (postId: number) => api.put<AdminPostSummary>('/api/admin/featured-post', { postId }),
+  clear: () => api.delete('/api/admin/featured-post'),
+};
+
+export const adminPostApi = {
+  getPosts: (params?: { page?: number; size?: number; category?: string }) =>
+    api.get<Page<AdminPostSummary>>('/api/posts', {
+      params: { ...params, sort: 'createdAt,desc' },
+    }),
+};
+
 export const adminUserApi = {
   getUsers: (params: { search?: string; banned?: boolean; page?: number; size?: number }) =>
     api.get<Page<AdminUser>>('/api/admin/users', { params }),

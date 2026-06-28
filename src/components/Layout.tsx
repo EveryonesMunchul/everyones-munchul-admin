@@ -8,8 +8,9 @@ const NAV = [
   { to: '/reports',   label: '신고 관리' },
   { to: '/notices',   label: '공지사항' },
   { to: '/faq',       label: 'FAQ' },
-  { to: '/ads',         label: '광고/배너' },
-  { to: '/maintenance', label: '서비스 점검' },
+  { to: '/home-setting', label: '홈 설정' },
+  { to: '/ads',          label: '광고/배너' },
+  { to: '/maintenance',  label: '서비스 점검' },
 ];
 
 export default function Layout() {
