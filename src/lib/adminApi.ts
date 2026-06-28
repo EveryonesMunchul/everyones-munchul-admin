@@ -101,6 +101,12 @@ export const adminPostApi = {
     }),
 };
 
+export interface AdminMessage {
+  id: number;
+  content: string;
+  createdAt: string;
+}
+
 export const adminUserApi = {
   getUsers: (params: { search?: string; banned?: boolean; page?: number; size?: number }) =>
     api.get<Page<AdminUser>>('/api/admin/users', { params }),
@@ -116,4 +122,10 @@ export const adminUserApi = {
 
   changeRole: (id: number, role: UserRole) =>
     api.patch<AdminUser>(`/api/admin/users/${id}/role`, { role }),
+
+  getMessages: (id: number) =>
+    api.get<AdminMessage[]>(`/api/admin/users/${id}/messages`),
+
+  sendMessage: (id: number, content: string) =>
+    api.post<AdminMessage>(`/api/admin/users/${id}/messages`, { content }),
 };

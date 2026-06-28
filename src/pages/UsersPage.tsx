@@ -4,6 +4,62 @@ import { adminUserApi } from '@/lib/adminApi';
 import type { AdminUser, UserRole } from '@/lib/adminApi';
 import PageHeader from '@/components/PageHeader';
 
+function MessagePanel({ userId }: { userId: number }) {
+  const qc = useQueryClient();
+  const [input, setInput] = useState('');
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ['admin-messages', userId],
+    queryFn: () => adminUserApi.getMessages(userId).then(r => r.data),
+  });
+
+  const sendMutation = useMutation({
+    mutationFn: (content: string) => adminUserApi.sendMessage(userId, content),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-messages', userId] });
+      setInput('');
+    },
+  });
+
+  return (
+    <div>
+      <p className="text-[11px] text-gray-400 mb-2">경고 메시지</p>
+      <textarea
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        rows={3}
+        maxLength={1000}
+        placeholder="유저에게 전달할 경고 메시지를 입력하세요"
+        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-[12px] resize-none focus:outline-none focus:ring-2 focus:ring-[#1c1c1e] placeholder:text-gray-300"
+      />
+      <div className="flex items-center justify-between mt-1.5 mb-3">
+        <span className="text-[11px] text-gray-300">{input.length}/1000</span>
+        <button
+          disabled={!input.trim() || sendMutation.isPending}
+          onClick={() => sendMutation.mutate(input.trim())}
+          className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-[12px] font-medium hover:bg-orange-600 transition-colors disabled:opacity-40"
+        >
+          {sendMutation.isPending ? '전송 중...' : '전송'}
+        </button>
+      </div>
+
+      {messages.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[11px] text-gray-400">전송 내역 ({messages.length}건)</p>
+          {messages.map(m => (
+            <div key={m.id} className="p-2.5 bg-orange-50 border border-orange-100 rounded-lg">
+              <p className="text-[12px] text-gray-700 whitespace-pre-wrap">{m.content}</p>
+              <p className="text-[10px] text-gray-400 mt-1">
+                {new Date(m.createdAt).toLocaleString('ko-KR')}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const ROLE_LABEL: Record<UserRole, string> = {
   USER: '일반', ADMIN: '관리자', EXPERT: '전문가',
 };
@@ -282,6 +338,10 @@ export default function UsersPage() {
               {(banMutation.isError || unbanMutation.isError || roleMutation.isError) && (
                 <p className="text-[12px] text-red-500 text-center">처리 중 오류가 발생했습니다.</p>
               )}
+
+              <hr className="border-gray-100" />
+
+              <MessagePanel userId={selectedUser.id} />
             </div>
           </div>
         )}
