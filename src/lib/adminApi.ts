@@ -95,7 +95,7 @@ export const featuredPostApi = {
 };
 
 export const adminPostApi = {
-  getPosts: (params?: { page?: number; size?: number; category?: string }) =>
+  getPosts: (params?: { page?: number; size?: number; category?: string; keyword?: string }) =>
     api.get<Page<AdminPostSummary>>('/api/posts', {
       params: { ...params, sort: 'createdAt,desc' },
     }),

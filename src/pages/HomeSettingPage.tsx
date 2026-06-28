@@ -4,6 +4,8 @@ import { featuredPostApi, adminPostApi } from '@/lib/adminApi';
 import type { AdminPostSummary } from '@/lib/adminApi';
 import PageHeader from '@/components/PageHeader';
 
+const SITE_URL = 'https://everyonesmunchul.site';
+
 const CATEGORY_LABELS: Record<string, string> = {
   LOVE: '연애/결혼', WORK: '직장/회사', GAME: '게임',
   FAMILY: '가족', FRIEND: '친구/인간관계', DAILY: '일상', ETC: '기타',
@@ -12,6 +14,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function HomeSettingPage() {
   const qc = useQueryClient();
   const [page, setPage] = useState(0);
+  const [keyword, setKeyword] = useState('');
+  const [inputValue, setInputValue] = useState('');
 
   const { data: featured, isLoading: featuredLoading } = useQuery({
     queryKey: ['admin-featured-post'],
@@ -19,9 +23,15 @@ export default function HomeSettingPage() {
   });
 
   const { data: postsPage, isLoading: postsLoading } = useQuery({
-    queryKey: ['admin-posts-list', page],
-    queryFn: () => adminPostApi.getPosts({ page, size: 10 }).then(r => r.data),
+    queryKey: ['admin-posts-list', keyword, page],
+    queryFn: () => adminPostApi.getPosts({ keyword: keyword || undefined, page, size: 10 }).then(r => r.data),
   });
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(0);
+    setKeyword(inputValue.trim());
+  };
 
   const setMutation = useMutation({
     mutationFn: (postId: number) => featuredPostApi.set(postId),
@@ -82,7 +92,27 @@ export default function HomeSettingPage() {
 
         {/* 게시글 목록 */}
         <section>
-          <h2 className="text-[14px] font-semibold text-[#1c1c1e] mb-4">게시글 선택</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[14px] font-semibold text-[#1c1c1e]">게시글 선택</h2>
+          </div>
+          <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+            <div className="relative flex-1 max-w-sm">
+              <input
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
+                placeholder="제목으로 검색..."
+                className="w-full pl-4 pr-8 py-2 border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-[#1c1c1e]"
+              />
+              {inputValue && (
+                <button type="button" onClick={() => { setInputValue(''); setKeyword(''); setPage(0); }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-[16px] leading-none">×</button>
+              )}
+            </div>
+            <button type="submit"
+              className="px-4 py-2 bg-[#1c1c1e] text-white rounded-xl text-[13px] font-medium hover:opacity-80">
+              검색
+            </button>
+          </form>
 
           {postsLoading ? (
             <div className="flex items-center justify-center h-40 text-[13px] text-gray-400">불러오는 중...</div>
@@ -92,7 +122,7 @@ export default function HomeSettingPage() {
                 <table className="w-full text-[13px]">
                   <thead className="bg-gray-50 border-b border-gray-100">
                     <tr>
-                      {['ID', '제목', '분야', '투표', '작성일', ''].map(h => (
+                      {['ID', '제목', '분야', '투표', '작성일', '', ''].map(h => (
                         <th key={h} className="text-left px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap">
                           {h}
                         </th>
@@ -105,8 +135,12 @@ export default function HomeSettingPage() {
                       return (
                         <tr key={post.id} className={`transition-colors ${isCurrent ? 'bg-[#5658d6]/5' : 'bg-white hover:bg-gray-50'}`}>
                           <td className="px-5 py-4 text-gray-400 tabular-nums">{post.id}</td>
-                          <td className="px-5 py-4 font-medium text-[#1c1c1e] max-w-[320px]">
-                            <p className="truncate">{post.title}</p>
+                          <td className="px-5 py-4 max-w-[280px]">
+                            <a href={`${SITE_URL}/posts/${post.id}`} target="_blank" rel="noopener noreferrer"
+                              className="font-medium text-[#1c1c1e] hover:text-[#5658d6] hover:underline transition-colors truncate block"
+                              title={post.title}>
+                              {post.title}
+                            </a>
                           </td>
                           <td className="px-5 py-4 text-gray-500 whitespace-nowrap">
                             {CATEGORY_LABELS[post.category] ?? post.category}
@@ -116,6 +150,12 @@ export default function HomeSettingPage() {
                           </td>
                           <td className="px-5 py-4 text-gray-400 whitespace-nowrap">
                             {new Date(post.createdAt + 'Z').toLocaleDateString('ko-KR')}
+                          </td>
+                          <td className="px-5 py-4">
+                            <a href={`${SITE_URL}/posts/${post.id}`} target="_blank" rel="noopener noreferrer"
+                              className="px-3 py-1.5 border border-gray-200 rounded-lg text-[12px] text-gray-500 hover:border-[#1c1c1e] hover:text-[#1c1c1e] transition-colors whitespace-nowrap inline-block">
+                              조회 →
+                            </a>
                           </td>
                           <td className="px-5 py-4">
                             {isCurrent ? (
